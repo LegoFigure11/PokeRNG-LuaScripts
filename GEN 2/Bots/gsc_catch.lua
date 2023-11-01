@@ -19,7 +19,7 @@ end
 local state = savestate.create()
 while true do
     savestate.save(state)
-    joypad.set(1, {A=true})
+    joypad.set(1, { A = true })
     for i = 1, delay do
         emu.frameadvance()
     end

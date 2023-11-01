@@ -46,7 +46,7 @@ function press(button, delay)
     end
 end
 
-function shiny(atkdef,spespc)
+function shiny(atkdef, spespc)
     if spespc == 0xAA then
         if atkdef == 0x2A or atkdef == 0x3A or atkdef == 0x6A or atkdef == 0x7A or atkdef == 0xAA or atkdef == 0xBA or atkdef == 0xEA or atkdef == 0xFA then
             return true
@@ -54,12 +54,12 @@ function shiny(atkdef,spespc)
     end
     return false
 end
- 
+
 local state = savestate.create()
 while true do
     savestate.save(state)
     while memory.readbyte(dv_flag_addr) ~= 0x01 do
-        press({up = true}, 10)
+        press({ up = true }, 10)
         emu.frameadvance()
     end
 
@@ -68,11 +68,13 @@ while true do
 
     if shiny(atkdef, spespc) then
         print("Shiny Suicune!")
-		print(string.format("Atk: %d Def: %d Spe: %d Spc: %d", math.floor(atkdef/16), atkdef%16, math.floor(spespc/16), spespc%16))
-		print (os.date ("%c")) --> 25/04/07 10:10:05
+        print(string.format("Atk: %d Def: %d Spe: %d Spc: %d", math.floor(atkdef / 16), atkdef % 16,
+            math.floor(spespc / 16), spespc % 16))
+        print(os.date("%c")) --> 25/04/07 10:10:05
         break
     else
-		print(string.format("Not shiny... - Atk: %d Def: %d Spe: %d Spc: %d", math.floor(atkdef/16), atkdef%16, math.floor(spespc/16), spespc%16))
+        print(string.format("Not shiny... - Atk: %d Def: %d Spe: %d Spc: %d", math.floor(atkdef / 16), atkdef % 16,
+            math.floor(spespc / 16), spespc % 16))
         savestate.load(state)
     end
     emu.frameadvance()

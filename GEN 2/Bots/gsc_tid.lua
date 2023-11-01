@@ -1,5 +1,5 @@
 --Edit parameters in this section
-local desired_tid = {12345, 00666, 31415} --TIDs you desired
+local desired_tid = { 12345, 00666, 31415 } --TIDs you desired
 --End of parameters
 
 local tid_addr
@@ -38,23 +38,23 @@ else
 end
 
 function reverseword(w)
-    return (w % 256)*256+math.floor(w/256)
+    return (w % 256) * 256 + math.floor(w / 256)
 end
 
 local state = savestate.create()
 while true do
     savestate.save(state)
     for i = 1, 20 do
-        joypad.set(1, {A=true})
+        joypad.set(1, { A = true })
         emu.frameadvance()
     end
     tid = reverseword(memory.readword(tid_addr))
     print(tid)
     for tid_count = 1, table.getn(desired_tid) do
-	    if tid == desired_tid[tid_count] then
-	        print("TID found!")
-	        return
-	    end
+        if tid == desired_tid[tid_count] then
+            print("TID found!")
+            return
+        end
     end
     savestate.load(state)
     for i = 1, 2 do

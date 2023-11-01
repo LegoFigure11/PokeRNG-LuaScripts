@@ -1,11 +1,10 @@
 -- Pokemon gen 4 lua script by MKDasher
 -- Japanese Diamond/Pearl support and auto-detection added by Fortranm
 -----------
-	-- Press 3 - 4 to change mode (Party / Enemy / Enemy 2 / Partner / Wild)
-	-- Press 7 - 8 to change number slot.
-	-- Press 9 to change view.
+-- Press 3 - 4 to change mode (Party / Enemy / Enemy 2 / Partner / Wild)
+-- Press 7 - 8 to change number slot.
+-- Press 9 to change view.
 -----------
-
 local ext = require "gen4_and_5_pokemon_extension"
 local json = require('json')
 local indentjson = true
@@ -21,9 +20,7 @@ local function drawbox(a, b, c, d, e, f)
 	gui.box(a + xfix, b + yfix, c + xfix, d + yfix, e, f)
 end
 
-local function drawtext(a, b, c, d)
-	gui.text(xfix + a, yfix + b, c,  d)
-end
+local function drawtext(a, b, c, d) gui.text(xfix + a, yfix + b, c, d) end
 
 local function drawarrowleft(a, b, c)
 	gui.line(a + xfix, b + yfix + 3, a + 2 + xfix, b + 5 + yfix, c)
@@ -38,41 +35,37 @@ local function drawarrowright(a, b, c)
 end
 
 local function mult32(a, b)
-	local c=rshift(a, 16)
-	local d=a%0x10000
-	local e=rshift(b, 16)
-	local f=b%0x10000
-	local g=(c*f+d*e)%0x10000
-	local h=d*f
-	local i=g*0x10000+h
+	local c = rshift(a, 16)
+	local d = a % 0x10000
+	local e = rshift(b, 16)
+	local f = b % 0x10000
+	local g = (c * f + d * e) % 0x10000
+	local h = d * f
+	local i = g * 0x10000 + h
 	return i
 end
 
-local function getbits(a, b, d)
-	return rshift(a, b) % lshift(1, d)
-end
+local function getbits(a, b, d) return rshift(a, b) % lshift(1, d) end
 
-local function gettop(a)
-	return (rshift(a, 16))
-end
+local function gettop(a) return (rshift(a, 16)) end
 
 local function getGame()
 	local gameIDAddr = memory.readdword(0x23FFE0C)
-	if gameIDAddr == 0x45415041 or gameIDAddr == 0x45414441 then --D/P(U)
+	if gameIDAddr == 0x45415041 or gameIDAddr == 0x45414441 then     -- D/P(U)
 		return 1
-	elseif gameIDAddr == 0x4A415041 or gameIDAddr == 0x4A414441 then --D/P(J)
+	elseif gameIDAddr == 0x4A415041 or gameIDAddr == 0x4A414441 then -- D/P(J)
 		return 8
-	elseif gameIDAddr == 0x45555043 then --Platinum
+	elseif gameIDAddr == 0x45555043 then                             -- Platinum
 		return 3
-	elseif gameIDAddr == 0x454B5049 or gameIDAddr == 0x45475049 then --HG/SS
+	elseif gameIDAddr == 0x454B5049 or gameIDAddr == 0x45475049 then -- HG/SS
 		return 2
-	elseif gameIDAddr == 0x4F425249 then --Black
+	elseif gameIDAddr == 0x4F425249 then                             -- Black
 		return 4
-	elseif gameIDAddr == 0x4F415249 then --White
+	elseif gameIDAddr == 0x4F415249 then                             -- White
 		return 5
-	elseif gameIDAddr == 0x4F455249 then --Black 2
+	elseif gameIDAddr == 0x4F455249 then                             -- Black 2
 		return 6
-	elseif gameIDAddr == 0x4F445249 then --White 2
+	elseif gameIDAddr == 0x4F445249 then                             -- White 2
 		return 7
 	else
 		return -1
@@ -124,23 +117,23 @@ end
 
 local function getCurFoeHP(game, pointer, mode)
 	if game == 1 or game == 8 then -- Pearl
-		if mode == 4 then -- Partner's hp
+		if mode == 4 then          -- Partner's hp
 			return memory.readword(pointer + 0x5574C)
-		elseif mode == 3 then -- Enemy 2
+		elseif mode == 3 then      -- Enemy 2
 			return memory.readword(pointer + 0x5580C)
 		else
 			return memory.readword(pointer + 0x5568C)
 		end
-	elseif game == 2 then --Heartgold
-		if mode == 4 then -- Partner's hp
+	elseif game == 2 then     -- Heartgold
+		if mode == 4 then     -- Partner's hp
 			return memory.readword(pointer + 0x56FC0)
 		elseif mode == 3 then -- Enemy 2
 			return memory.readword(pointer + 0x57080)
 		else
 			return memory.readword(pointer + 0x56F00)
 		end
-	else--if game == 3 then --Platinum
-		if mode == 4 then -- Partner's hp
+	else                      -- if game == 3 then --Platinum
+		if mode == 4 then     -- Partner's hp
 			return memory.readword(pointer + 0x54764)
 		elseif mode == 3 then -- Enemy 2
 			return memory.readword(pointer + 0x54824)
@@ -151,92 +144,98 @@ local function getCurFoeHP(game, pointer, mode)
 end
 
 local function getPidAddr(game, pointer, mode, submode)
-	if game == 1 or game == 8 then --Pearl
+	if game == 1 or game == 8 then -- Pearl
 		local enemyAddr = pointer + 0x364C8
 		if mode == 5 then
 			return pointer + 0x36C6C
 		elseif mode == 4 then
-			return memory.readdword(enemyAddr) + 0x774 + 0x5B0 + 0xEC*(submode-1)
+			return memory.readdword(enemyAddr) + 0x774 + 0x5B0 + 0xEC *
+				(submode - 1)
 		elseif mode == 3 then
-			return memory.readdword(enemyAddr) + 0x774 + 0xB60 + 0xEC*(submode-1)
+			return memory.readdword(enemyAddr) + 0x774 + 0xB60 + 0xEC *
+				(submode - 1)
 		elseif mode == 2 then
-			return memory.readdword(enemyAddr) + 0x774 + 0xEC*(submode-1)
+			return memory.readdword(enemyAddr) + 0x774 + 0xEC * (submode - 1)
 		else
-			return pointer + 0xD2AC + 0xEC*(submode-1)
+			return pointer + 0xD2AC + 0xEC * (submode - 1)
 		end
-	elseif game == 2 then --HeartGold
+	elseif game == 2 then -- HeartGold
 		local enemyAddr = pointer + 0x37970
 		if mode == 5 then
 			return pointer + 0x38540
 		elseif mode == 4 then
-			return memory.readdword(enemyAddr) + 0x1C70 + 0xA1C + 0xEC*(submode-1)
+			return memory.readdword(enemyAddr) + 0x1C70 + 0xA1C + 0xEC *
+				(submode - 1)
 		elseif mode == 3 then
-			return memory.readdword(enemyAddr) + 0x1C70 + 0x1438 + 0xEC*(submode-1)
+			return memory.readdword(enemyAddr) + 0x1C70 + 0x1438 + 0xEC *
+				(submode - 1)
 		elseif mode == 2 then
-			return memory.readdword(enemyAddr) + 0x1C70 + 0xEC*(submode-1)
+			return memory.readdword(enemyAddr) + 0x1C70 + 0xEC * (submode - 1)
 		else
-			return pointer + 0xD088 + 0xEC*(submode-1)
+			return pointer + 0xD088 + 0xEC * (submode - 1)
 		end
-	elseif game == 3 then --Platinum
+	elseif game == 3 then -- Platinum
 		local enemyAddr = pointer + 0x352F4
 		if mode == 5 then
 			return pointer + 0x35AC4
 		elseif mode == 4 then
-			return memory.readdword(enemyAddr) + 0x7A0 + 0x5B0 + 0xEC*(submode-1)
+			return memory.readdword(enemyAddr) + 0x7A0 + 0x5B0 + 0xEC *
+				(submode - 1)
 		elseif mode == 3 then
-			return memory.readdword(enemyAddr) + 0x7A0 + 0xB60 + 0xEC*(submode-1)
+			return memory.readdword(enemyAddr) + 0x7A0 + 0xB60 + 0xEC *
+				(submode - 1)
 		elseif mode == 2 then
-			return memory.readdword(enemyAddr) + 0x7A0 + 0xEC*(submode-1)
+			return memory.readdword(enemyAddr) + 0x7A0 + 0xEC * (submode - 1)
 		else
-			return pointer + 0xD094 + 0xEC*(submode-1)
+			return pointer + 0xD094 + 0xEC * (submode - 1)
 		end
-	elseif game == 4 then --Black
+	elseif game == 4 then -- Black
 		if mode == 5 then
 			return 0x02259DD8
 		elseif mode == 4 then
-			return 0x0226B7B4 + 0xDC*(submode-1)
+			return 0x0226B7B4 + 0xDC * (submode - 1)
 		elseif mode == 3 then
-			return 0x0226C274 + 0xDC*(submode-1)
+			return 0x0226C274 + 0xDC * (submode - 1)
 		elseif mode == 2 then
-			return 0x0226ACF4 + 0xDC*(submode-1)
+			return 0x0226ACF4 + 0xDC * (submode - 1)
 		else -- mode 1
-			return 0x022349B4 + 0xDC*(submode-1)
+			return 0x022349B4 + 0xDC * (submode - 1)
 		end
-	elseif game == 5 then --White
+	elseif game == 5 then -- White
 		if mode == 5 then
 			return 0x02259DF8
 		elseif mode == 4 then
-			return 0x0226B7D4 + 0xDC*(submode-1)
+			return 0x0226B7D4 + 0xDC * (submode - 1)
 		elseif mode == 3 then
-			return 0x0226C294 + 0xDC*(submode-1)
+			return 0x0226C294 + 0xDC * (submode - 1)
 		elseif mode == 2 then
-			return 0x0226AD14 + 0xDC*(submode-1)
+			return 0x0226AD14 + 0xDC * (submode - 1)
 		else -- mode 1
-			return 0x022349D4 + 0xDC*(submode-1)
+			return 0x022349D4 + 0xDC * (submode - 1)
 		end
-	elseif game == 6 then --Black 2
+	elseif game == 6 then -- Black 2
 		if mode == 5 then
 			return 0x0224795C
 		elseif mode == 4 then
-			return 0x022592F4 + 0xDC*(submode-1)
+			return 0x022592F4 + 0xDC * (submode - 1)
 		elseif mode == 3 then
-			return 0x02259DB4 + 0xDC*(submode-1)
+			return 0x02259DB4 + 0xDC * (submode - 1)
 		elseif mode == 2 then
-			return 0x02258834 + 0xDC*(submode-1)
+			return 0x02258834 + 0xDC * (submode - 1)
 		else -- mode 1
-			return 0x0221E3EC + 0xDC*(submode-1)
+			return 0x0221E3EC + 0xDC * (submode - 1)
 		end
-	else --White 2
+	else -- White 2
 		if mode == 5 then
 			return 0x0224799C
 		elseif mode == 4 then
-			return 0x02259334 + 0xDC*(submode-1)
+			return 0x02259334 + 0xDC * (submode - 1)
 		elseif mode == 3 then
-			return 0x02259DF4 + 0xDC*(submode-1)
+			return 0x02259DF4 + 0xDC * (submode - 1)
 		elseif mode == 2 then
-			return 0x02258874 + 0xDC*(submode-1)
+			return 0x02258874 + 0xDC * (submode - 1)
 		else -- mode 1
-			return 0x0221E42C + 0xDC*(submode-1)
+			return 0x0221E42C + 0xDC * (submode - 1)
 		end
 	end
 end
@@ -279,9 +278,7 @@ local function getNatClr(a, nat)
 	return color
 end
 
-
 local function getData(mode, submode, safemode)
-
 	local game = getGame()
 	local gen = getGen(game)
 	local gamename = getGameName(game)
@@ -304,36 +301,41 @@ local function getData(mode, submode, safemode)
 	-- Block A
 	local prng = checksum
 	for _ = 1, ext.BlockA[shiftvalue + 1] - 1 do
-		prng = mult32(prng,0x5F748241) + 0xCBA72510 -- 16 cycles
+		prng = mult32(prng, 0x5F748241) + 0xCBA72510 -- 16 cycles
 	end
 
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	local pokemonID = bxor(memory.readword(pidAddr + BlockAoff + 8), gettop(prng))
-	if gen == 4 and safemode == 1 and pokemonID > 494 then --just to make sure pokemonID is right (gen 4)
-		pokemonID = -1 -- (pokemonID = -1 indicates invalid data)
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	local pokemonID = bxor(memory.readword(pidAddr + BlockAoff + 8),
+		gettop(prng))
+	if gen == 4 and safemode == 1 and pokemonID > 494 then                      -- just to make sure pokemonID is right (gen 4)
+		pokemonID = -1                                                          -- (pokemonID = -1 indicates invalid data)
 	elseif gen == 4 and isegg == 1 and (pokemonID == 0 or pokemonID > 495) then -- BUG: isegg is checked before defined below
-		pokemonID = -1 -- (pokemonID = -1 indicates invalid data)
-	elseif gen == 5 and pokemonID > 651 then -- gen5
-		pokemonID = -1 -- (pokemonID = -1 indicates invalid data)
+		pokemonID = -1                                                          -- (pokemonID = -1 indicates invalid data)
+	elseif gen == 5 and pokemonID > 651 then                                    -- gen5
+		pokemonID = -1                                                          -- (pokemonID = -1 indicates invalid data)
 	end
 
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	local helditem = bxor(memory.readword(pidAddr + BlockAoff + 2 + 8), gettop(prng))
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	local helditem = bxor(memory.readword(pidAddr + BlockAoff + 2 + 8),
+		gettop(prng))
 	if gen == 4 and safemode == 1 and helditem > 537 then -- Gen 4
-		pokemonID = -1 -- (pokemonID = -1 indicates invalid data)
-	elseif gen == 5 and helditem > 639 then -- Gen 5
-		pokemonID = -1 -- (pokemonID = -1 indicates invalid data)
+		pokemonID = -1                                    -- (pokemonID = -1 indicates invalid data)
+	elseif gen == 5 and helditem > 639 then               -- Gen 5
+		pokemonID = -1                                    -- (pokemonID = -1 indicates invalid data)
 	end
 
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	local OTID = bxor(memory.readword(pidAddr + BlockAoff + 4 + 8), gettop(prng))
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	local OTSID = bxor(memory.readword(pidAddr + BlockAoff + 6 + 8), gettop(prng))
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	local OTID =
+		bxor(memory.readword(pidAddr + BlockAoff + 4 + 8), gettop(prng))
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	local OTSID = bxor(memory.readword(pidAddr + BlockAoff + 6 + 8),
+		gettop(prng))
 
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	local ability = bxor(memory.readword(pidAddr + BlockAoff + 12 + 8), gettop(prng))
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	local ability = bxor(memory.readword(pidAddr + BlockAoff + 12 + 8),
+		gettop(prng))
 	local friendship_or_steps_to_hatch = getbits(ability, 0, 8)
 	ability = getbits(ability, 8, 8)
 	if gen == 4 and safemode == 1 and ability > 123 then
@@ -341,13 +343,16 @@ local function getData(mode, submode, safemode)
 	elseif gen == 5 and ability > 164 then
 		pokemonID = -1
 	end
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	local evs1 = bxor(memory.readword(pidAddr + BlockAoff + 16 + 8), gettop(prng))
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	local evs2 = bxor(memory.readword(pidAddr + BlockAoff + 18 + 8), gettop(prng))
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	local evs3 = bxor(memory.readword(pidAddr + BlockAoff + 20 + 8), gettop(prng))
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	local evs1 = bxor(memory.readword(pidAddr + BlockAoff + 16 + 8),
+		gettop(prng))
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	local evs2 = bxor(memory.readword(pidAddr + BlockAoff + 18 + 8),
+		gettop(prng))
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	local evs3 = bxor(memory.readword(pidAddr + BlockAoff + 20 + 8),
+		gettop(prng))
 
 	local hpev = getbits(evs1, 0, 8)
 	local atkev = getbits(evs1, 8, 8)
@@ -359,10 +364,10 @@ local function getData(mode, submode, safemode)
 	-- Block B
 	prng = checksum
 	for _ = 1, ext.BlockB[shiftvalue + 1] - 1 do
-		prng = mult32(prng,0x5F748241) + 0xCBA72510 -- 16 cycles
+		prng = mult32(prng, 0x5F748241) + 0xCBA72510 -- 16 cycles
 	end
 
-	prng = mult32(prng,0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
 
 	local moves = {}
 
@@ -372,68 +377,70 @@ local function getData(mode, submode, safemode)
 	elseif gen == 5 and moves[1] > 559 then
 		pokemonID = -1
 	end
-	prng = mult32(prng,0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
 	moves[2] = bxor(memory.readword(pidAddr + BlockBoff + 2 + 8), gettop(prng))
 	if safemode == 1 and gen == 4 and moves[2] > 467 then
 		pokemonID = -1
 	elseif gen == 5 and moves[2] > 559 then
 		pokemonID = -1
 	end
-	prng = mult32(prng,0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
 	moves[3] = bxor(memory.readword(pidAddr + BlockBoff + 4 + 8), gettop(prng))
 	if safemode == 1 and gen == 4 and moves[3] > 467 then
 		pokemonID = -1
 	elseif gen == 5 and moves[3] > 559 then
 		pokemonID = -1
 	end
-	prng = mult32(prng,0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
 	moves[4] = bxor(memory.readword(pidAddr + BlockBoff + 6 + 8), gettop(prng))
 	if safemode == 1 and gen == 4 and moves[4] > 467 then
 		pokemonID = -1
 	elseif gen == 5 and moves[4] > 559 then
 		pokemonID = -1
 	end
-	prng = mult32(prng,0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
 
-	local moveppaux = bxor(memory.readword(pidAddr + BlockBoff + 8 + 8), gettop(prng))
+	local moveppaux = bxor(memory.readword(pidAddr + BlockBoff + 8 + 8),
+		gettop(prng))
 
 	local movespp = {}
-	movespp[1] = getbits(moveppaux,0,8)
-	movespp[2] = getbits(moveppaux,8,8)
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	moveppaux = bxor(memory.readword(pidAddr + BlockBoff + 10 + 8), gettop(prng))
-	movespp[3] = getbits(moveppaux,0,8)
-	movespp[4] = getbits(moveppaux,8,8)
+	movespp[1] = getbits(moveppaux, 0, 8)
+	movespp[2] = getbits(moveppaux, 8, 8)
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	moveppaux =
+		bxor(memory.readword(pidAddr + BlockBoff + 10 + 8), gettop(prng))
+	movespp[3] = getbits(moveppaux, 0, 8)
+	movespp[4] = getbits(moveppaux, 8, 8)
 
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	prng = mult32(prng,0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
 
-	prng = mult32(prng,0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
 
-	local ivspart1 = bxor(memory.readword(pidAddr + BlockBoff + 16 + 8), gettop(prng))
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	local ivspart2 = bxor(memory.readword(pidAddr + BlockBoff + 18 + 8), gettop(prng))
-	local ivs = ivspart1  + lshift(ivspart2,16)
+	local ivspart1 = bxor(memory.readword(pidAddr + BlockBoff + 16 + 8),
+		gettop(prng))
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	local ivspart2 = bxor(memory.readword(pidAddr + BlockBoff + 18 + 8),
+		gettop(prng))
+	local ivs = ivspart1 + lshift(ivspart2, 16)
 
-	local hpiv  = getbits(ivs,0,5)
-	local atkiv = getbits(ivs,5,5)
-	local defiv = getbits(ivs,10,5)
-	local speiv = getbits(ivs,15,5)
-	local spaiv = getbits(ivs,20,5)
-	local spdiv = getbits(ivs,25,5)
-	local isegg = getbits(ivs,30,1)
+	local hpiv = getbits(ivs, 0, 5)
+	local atkiv = getbits(ivs, 5, 5)
+	local defiv = getbits(ivs, 10, 5)
+	local speiv = getbits(ivs, 15, 5)
+	local spaiv = getbits(ivs, 20, 5)
+	local spdiv = getbits(ivs, 25, 5)
+	local isegg = getbits(ivs, 30, 1)
 
 	-- Nature for gen 5, for gen 4, it's calculated from the PID.
 	local nat
 	if gen == 5 then
-		prng = mult32(prng,0x41C64E6D) + 0x6073
-		prng = mult32(prng,0x41C64E6D) + 0x6073
-		prng = mult32(prng,0x41C64E6D) + 0x6073
+		prng = mult32(prng, 0x41C64E6D) + 0x6073
+		prng = mult32(prng, 0x41C64E6D) + 0x6073
+		prng = mult32(prng, 0x41C64E6D) + 0x6073
 		nat = bxor(memory.readword(pidAddr + BlockBoff + 24 + 8), gettop(prng))
-		nat = getbits(nat,8,8)
-		if nat > 24 then
-			pokemonID = -1
-		end
+		nat = getbits(nat, 8, 8)
+		if nat > 24 then pokemonID = -1 end
 	else -- gen == 4
 		nat = pid % 25
 	end
@@ -441,50 +448,56 @@ local function getData(mode, submode, safemode)
 	-- Block D
 	prng = checksum
 	for _ = 1, ext.BlockD[shiftvalue + 1] - 1 do
-		prng = mult32(prng,0x5F748241) + 0xCBA72510 -- 16 cycles
+		prng = mult32(prng, 0x5F748241) + 0xCBA72510 -- 16 cycles
 	end
 
-	prng = mult32(prng,0xCFDDDF21) + 0x67DBB608 -- 8 cycles
-	prng = mult32(prng,0xEE067F11) + 0x31B0DDE4 -- 4 cycles
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	prng = mult32(prng,0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0xCFDDDF21) + 0x67DBB608 -- 8 cycles
+	prng = mult32(prng, 0xEE067F11) + 0x31B0DDE4 -- 4 cycles
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
 
-	local pkrs = bxor(memory.readword(pidAddr + BlockDoff + 0x1A + 8), gettop(prng))
-	pkrs = getbits(pkrs,0,8)
+	local pkrs = bxor(memory.readword(pidAddr + BlockDoff + 0x1A + 8),
+		gettop(prng))
+	pkrs = getbits(pkrs, 0, 8)
 
 	-- Current stats
 	prng = pid
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	prng = mult32(prng,0x41C64E6D) + 0x6073
-	local level = getbits(bxor(memory.readword(pidAddr + 0x8C), gettop(prng)),0,8)
-	prng = mult32(prng,0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
+	local level = getbits(bxor(memory.readword(pidAddr + 0x8C), gettop(prng)),
+		0, 8)
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
 	local hpstat = bxor(memory.readword(pidAddr + 0x8E), gettop(prng))
-	prng = mult32(prng,0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
 	local maxhpstat = bxor(memory.readword(pidAddr + 0x90), gettop(prng))
-	prng = mult32(prng,0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
 	local atkstat = bxor(memory.readword(pidAddr + 0x92), gettop(prng))
-	prng = mult32(prng,0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
 	local defstat = bxor(memory.readword(pidAddr + 0x94), gettop(prng))
-	prng = mult32(prng,0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
 	local spestat = bxor(memory.readword(pidAddr + 0x96), gettop(prng))
-	prng = mult32(prng,0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
 	local spastat = bxor(memory.readword(pidAddr + 0x98), gettop(prng))
-	prng = mult32(prng,0x41C64E6D) + 0x6073
+	prng = mult32(prng, 0x41C64E6D) + 0x6073
 	local spdstat = bxor(memory.readword(pidAddr + 0x9A), gettop(prng))
 
 	local currentFoeHP = getCurFoeHP(game, pointer, mode)
-	if currentFoeHP > 1000 then
-		currentFoeHP = 0
-	end
+	if currentFoeHP > 1000 then currentFoeHP = 0 end
 
 	-- Calculate Hidden Power
-	local hiddentype = math.floor(
-		((hpiv % 2) + 2*(atkiv % 2) + 4*(defiv % 2) + 8*(speiv % 2) + 16*(spaiv % 2) + 32*(spdiv % 2))*15 / 63
-	)
+	local hiddentype = math.floor(((hpiv % 2) + 2 * (atkiv % 2) + 4 *
+		(defiv % 2) + 8 * (speiv % 2) + 16 *
+		(spaiv % 2) + 32 * (spdiv % 2)) * 15 / 63)
 
-	local hiddenpower = 30 + math.floor(((rshift(hpiv,1) % 2) + 2*(rshift(atkiv,1) % 2) + 4*(rshift(defiv,1) % 2)
-					+ 8*(rshift(speiv,1) % 2) + 16*(rshift(spaiv,1) % 2) + 32*(rshift(spdiv,1) % 2)) * 40 / 63)
+	local hiddenpower = 30 +
+		math.floor(
+			((rshift(hpiv, 1) % 2) + 2 *
+				(rshift(atkiv, 1) % 2) + 4 *
+				(rshift(defiv, 1) % 2) + 8 *
+				(rshift(speiv, 1) % 2) + 16 *
+				(rshift(spaiv, 1) % 2) + 32 *
+				(rshift(spdiv, 1) % 2)) * 40 / 63)
 
 	local movestext = {}
 	for i, move in ipairs(moves) do
@@ -533,13 +546,13 @@ local function getData(mode, submode, safemode)
 		mode = mode,
 		submode = submode,
 		safemode = safemode,
-		helditemtext = (gen == 4 and ext.item_gen4[helditem + 1]) or (gen == 5 and ext.item_gen5[helditem + 1]) or helditem,
+		helditemtext = (gen == 4 and ext.item_gen4[helditem + 1]) or
+			(gen == 5 and ext.item_gen5[helditem + 1]) or helditem,
 		pokemontext = ext.pokemon[pokemonID + 1] or pokemonID,
 		naturetext = ext.nature[nat + 1] or nat,
 		abilitytext = ext.abilities[ability + 1] or ability,
-		modetext = ext.mode[mode] or mode,
+		modetext = ext.mode[mode] or mode
 	}
-
 end
 
 local mode = 1
@@ -552,32 +565,27 @@ local prev = {}
 local t = os.clock()
 
 local function dump()
-
-	if os.clock() - t < ticklength then
-		return
-	end
+	if os.clock() - t < ticklength then return end
 	t = os.clock()
 
 	local tbl = {}
-    local i = 0
+	local i = 0
 	-- for i = 1, modemax do
-		tbl[i] = {}
-		for j = 1, submodemax do
-			data = getData(i, j, safemode)
-            tbl[i][j] = data
-		end
+	tbl[i] = {}
+	for j = 1, submodemax do
+		data = getData(i, j, safemode)
+		tbl[i][j] = data
+	end
 	-- end
 	local f = io.open('dump.json', 'w')
-	f:write(json.encode(tbl[i], {indent = indentjson}))
+	f:write(json.encode(tbl[i], { indent = indentjson }))
 	f:close()
-
 end
 
 local function main()
-
 	dump()
 
-    --[[
+	--[[
 	local tabl = input.get()
 
 	if tabl["7"] and not prev["7"] and mode < 5 then
